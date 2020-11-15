@@ -19,14 +19,15 @@ $\[-1\times log(p_{02}),-1\times log(p_{10})\]=\[0.32656264,0.46436879\]$
 其中$p_{02}$代表第一个单词标签为2的概率，$p_{10}$代表第一个单词标签为0的概率
 
 ### softmax求导
-$$(\frac{e^{z_t}}{\sum_{k}e^{z_k}})'=\frac{\sum_{k}e^{z_k}e^{z_t}-(e^{z_t})^2}{(\sum_{k}e^{z_k})^2}=\frac{e^{z_t}}{\sum_{k}e^{z_k}}(1-\frac{e^{z_t}}{\sum_{k}e^{z_k}})=p_t(1-p_t)$$
+$$(\frac{e^{z_t}}{\sum_{k}e^{z_k}})'=\frac{\sum_{k}e^{z_k}e^{z_t}-(e^{z_t})^2}{(\sum_{k}e^{z_k})^2}=\frac{e^{z_t}}{\sum_{k}e^{z_k}}(1-\frac{e^{z_t}}{\sum_{k}e^{z_k}})=y_t(1-y_t)$$
 
 ### sigmoid求导
 softmax和sigmoid有着相同的求导公式  
 $$(\frac{1}{1+e^{-x}})'=\frac{e^{-x}}{(1+e^{-x})^2}=f(x)(1-f(x))$$
 ### backpropagation(误差逆传播算法)
+以下公式会采用来自西瓜书的一些符号：  
+<img src="https://github.com/hanggun/NLP-study/blob/main/photo/BP.jpg" width = "800" height = "500" alt="" align=center />  
 误差逆传播的思想是通过将预测结果与真实结果之间的误差与每一个神经元拥有的权重联系起来，通过梯度下降法等算法对权重进行调整，使最终的预测结果与真实结果之间的误差减小，权重的迭代公式如下所示
 $$\omega = \omega-\alpha\frac{\partial E}{\partial \omega}$$
 其中$E$代表误差函数，在这里我将总结一下目前最常用的2种误差，均方误差与交叉熵误差在误差逆传播算法中对权重的影响  
 首先是交叉熵误差：  
-+
