@@ -159,5 +159,68 @@ model.fit([x_train, x_valid], [y1,y2], epochs=4)
 ```python
 '''自定义loss和metrics
 '''
+def loss1(y_true, y_pred):
+    return K.mean(y_true) - K.mean(y_pred)
 
+def loss2(y_true, y_pred):
+    return K.mean(y_true) + K.mean(y_pred)
+
+def metric1(y_true, y_pred):
+    return tf.keras.metrics.binary_accuracy(y_true, y_pred)
+
+def metric2(y_true, y_pred):
+    return tf.keras.metrics.categorical_crossentropy(y_true, y_pred)
+    
+inputs = layers.Input(shape=(4))
+inputs1 = layers.Input(shape=(4))
+x = layers.Dense(4, activation='sigmoid',name='x')(inputs)
+y = layers.Dense(2, activation='softmax',name='y')(inputs1)
+model = keras.Model([inputs,inputs1], [x,y])
+
+model.compile(optimizer=keras.optimizers.Adam(1e-3),
+             loss=[
+                 loss1,
+                 loss2
+             ],
+              weight=[1,1],
+             metrics=[metric1, metric2]
+                )
+x_train = np.array([[1,0,1,0], [0,1,0,1]], dtype='float')
+x_valid = np.array([[0,0,0,1],[0,0,1,0]], dtype='float')
+y1 = np.array([[0,0,0,1],[0,0,1,0]], dtype='float')
+y2 = np.array([[0,1],[1,0]], dtype='float')
+model.fit([x_train, x_valid], [y1,y2], epochs=4)
+#输出Epoch 1/4
+#2/2 [==============================] - 0s 187ms/sample - loss: 0.6692 - x_loss: -0.3308 - y_loss: 1.0000 - x_metric1: 0.6250 - x_metric2: 1.1652 - y_metric1: #0.0000e+00 - y_metric2: 0.9912
+#loss和之前一样，在这里每一个metric都分别对2个输出进行了计算，同时也对每种loss进行了加权
+```
+上述两种多输入多输出的模型都是在匹配了预测和真实标签的情况下进行构建的，但是在某些时候，我们希望将真实标签作为输入进行模型构建，这时候就无法再compile中使用loss和metrics，需要在模型外自定义loss和metrics，以下为基础模型例子：
+```python
+inputs = layers.Input(shape=(4))
+inputs1 = layers.Input(shape=(4))
+true_x = layers.Input(shape=(None,))
+true_y = layers.Input(shape=(None,))
+x = layers.Dense(4, activation='softmax',name='x')(inputs)
+y = layers.Dense(2, activation='softmax',name='y')(inputs1)
+model = keras.Model([inputs,inputs1, true_x, true_y], [x,y])
+
+loss1 = K.categorical_crossentropy(true_x, x)
+loss2 = K.binary_crossentropy(true_y, y)
+loss = K.mean(loss1) + K.mean(loss2)
+model.add_loss(loss)
+
+acc1 = tf.keras.metrics.categorical_accuracy(true_x, x)
+acc2 = tf.keras.metrics.binary_accuracy(true_y, y)
+model.add_metric(acc1, name='x_acc', aggregation='mean')
+model.add_metric(acc2, name='y_acc', aggregation='mean')
+
+model.compile(optimizer=keras.optimizers.Adam(1e-3))
+x_train = np.array([[1,0,1,0], [0,1,0,1]], dtype='float')
+x_valid = np.array([[0,0,0,1],[0,0,1,0]], dtype='float')
+y1 = np.array([[0,0,0,1],[0,0,1,0]], dtype='float')
+y2 = np.array([[0,1],[1,0]], dtype='float')
+model.fit([x_train, x_valid, y1, y2], epochs=4)
+#输出Epoch 1/4
+#2/2 [==============================] - 0s 185ms/sample - loss: 1.8142 - x_acc: 1.0000 - y_acc: 0.5000
+#可以追踪总体损失但是不能追踪各个损失
 ```
