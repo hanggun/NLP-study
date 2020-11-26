@@ -68,7 +68,10 @@ class myLoss(keras.layers.Layer):
  loss = myLoss(name='myLoss')(input_first_label,pred_first,input_second_label,pred_second)
  model = keras.Model(inputs=[input_ids, input_first_label, input_second_label], outputs=loss)
 ```
-
+focal loss, 可以处理类别不平衡分类问题的损失，其主要思想是让模型着重训练hard example，忽略easy example，不过在我的项目中未能提升精度，这边记录一下在keras中的实现方式
+```python
+loss = -(1 - y_pred) ** 2 * y_true * tf.math.log(y_pred)
+```
 #### 自定义指标
 ```python
 '''继承keras.metrics.Metric类
