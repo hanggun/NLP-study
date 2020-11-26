@@ -107,3 +107,26 @@ features=layers.Lambda(lambda x: K.concatenate([x[0], x[1]], 1))([feature,input_
 ```
 
 #### Embedding层的妙用
+1.作为一个矩阵查找操作，输入一个整数，输出对应下标的向量，并且这个矩阵是可以训练的
+```python
+store = layers.Embedding(2,4, embeddings_initializer=keras.initializers.Constant(np.array([[0,0,0,0],[1,1,1,1]])), trainable=False)
+store(1)
+#输出<tf.Tensor: id=10065, shape=(4,), dtype=float32, numpy=array([1., 1., 1., 1.], dtype=float32)>
+```
+2.将输入的最后一个维度的每一个数转换成output_dim维向量，并使用embedding_initializer进行初始化，default为'uniform'
+```python
+store = layers.Embedding(input_dim=2,output_dim=4)#input_dim为输入的整数的range为[0,input_dim),output_dim为输出维度
+store(tf.ones(shape=[2,4]))
+'''输出<tf.Tensor: id=10116, shape=(2, 4, 4), dtype=float32, numpy=
+array([[[-0.01051073,  0.01206005,  0.00975666, -0.03649573],
+        [-0.01051073,  0.01206005,  0.00975666, -0.03649573],
+        [-0.01051073,  0.01206005,  0.00975666, -0.03649573],
+        [-0.01051073,  0.01206005,  0.00975666, -0.03649573]],
+
+       [[-0.01051073,  0.01206005,  0.00975666, -0.03649573],
+        [-0.01051073,  0.01206005,  0.00975666, -0.03649573],
+        [-0.01051073,  0.01206005,  0.00975666, -0.03649573],
+        [-0.01051073,  0.01206005,  0.00975666, -0.03649573]]],
+      dtype=float32)>
+ '''
+```
