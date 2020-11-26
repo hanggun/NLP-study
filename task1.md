@@ -183,7 +183,7 @@ model.compile(optimizer=keras.optimizers.Adam(1e-3),
                  loss2
              ],
               weight=[1,1],
-             metrics=[metric1, metric2]
+             metrics={'x':metric1,'y':metric2}
                 )
 x_train = np.array([[1,0,1,0], [0,1,0,1]], dtype='float')
 x_valid = np.array([[0,0,0,1],[0,0,1,0]], dtype='float')
@@ -191,8 +191,8 @@ y1 = np.array([[0,0,0,1],[0,0,1,0]], dtype='float')
 y2 = np.array([[0,1],[1,0]], dtype='float')
 model.fit([x_train, x_valid], [y1,y2], epochs=4)
 #输出Epoch 1/4
-#2/2 [==============================] - 0s 187ms/sample - loss: 0.6692 - x_loss: -0.3308 - y_loss: 1.0000 - x_metric1: 0.6250 - x_metric2: 1.1652 - y_metric1: #0.0000e+00 - y_metric2: 0.9912
-#loss和之前一样，在这里每一个metric都分别对2个输出进行了计算，同时也对每种loss进行了加权
+#2/2 [==============================] - 0s 181ms/sample - loss: -0.1273 - x_loss: -0.2057 - y_loss: 0.0783 - x_metric1: 0.6250 - y_metric2: 0.3102
+#loss和之前一样，对loss进行了加权，loss分别作用于x层和y层
 ```
 上述两种多输入多输出的模型都是在匹配了预测和真实标签的情况下进行构建的，但是在某些时候，我们希望将真实标签作为输入进行模型构建，这时候就无法再compile中使用loss和metrics，需要在模型外自定义loss和metrics，以下为基础模型例子：
 ```python
