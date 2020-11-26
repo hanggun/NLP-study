@@ -130,3 +130,34 @@ array([[[-0.01051073,  0.01206005,  0.00975666, -0.03649573],
       dtype=float32)>
  '''
 ```
+
+#### 多输入多输出模型构建
+```python
+'''不自定义loss和metrics的基础模型
+'''
+inputs = layers.Input(shape=(4))
+inputs1 = layers.Input(shape=(4))
+x = layers.Dense(4, activation='softmax',name='x')(inputs)
+y = layers.Dense(2, activation='softmax',name='y')(inputs1)
+model = keras.Model([inputs,inputs1], [x,y])
+model.compile(optimizer=keras.optimizers.Adam(1e-3),
+             loss=[
+                 keras.losses.CategoricalCrossentropy(),
+                 lambda y_true, y_pred: y_pred
+             ],
+             metrics=['acc', 'acc']
+                )
+x_train = np.array([[1,0,1,0], [0,1,0,1]])
+x_valid = np.array([[0,0,0,1],[0,0,1,0]])
+y1 = np.array([[0,0,0,1],[0,0,1,0]])
+y2 = np.array([[0,1],[1,0]])
+model.fit([x_train, x_valid], [y1,y2], epochs=4)
+#输出Epoch 1/4
+#2/2 [==============================] - 0s 160ms/sample - loss: 1.3203 - x_loss: 0.8203 - y_loss: 0.5000 - x_acc: 1.0000 - y_acc: 0.5000
+#既可以看到各自的loss和各自的准确率，还能看到总的loss
+```
+```python
+'''自定义loss和metrics
+'''
+
+```
