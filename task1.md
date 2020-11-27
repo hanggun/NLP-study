@@ -73,6 +73,19 @@ focal loss, 可以处理类别不平衡分类问题的损失，其主要思想�
 ```python
 loss = -(1 - y_pred) ** 2 * y_true * tf.math.log(y_pred)
 ```
+互信息损失，其主要思想是将每个类别出现的频率作为先验分布，添加到交叉熵中，解决类别不平衡的重点，在多标签模型中，效果仍然不理想，[参考](https://kexue.fm/archives/7615)
+```python
+def categorical_crossentropy_with_prior(y_true, y_pred, tau=1.0):
+    """带先验分布的交叉熵
+    注：y_pred不用加softmax
+    """
+    prior = xxxxxx  # 自己定义好prior，shape为[num_classes]
+    log_prior = K.constant(np.log(prior + 1e-8))
+    for _ in range(K.ndim(y_pred) - 1):
+        log_prior = K.expand_dims(log_prior, 0)
+    y_pred = y_pred + tau * log_prior
+    return K.categorical_crossentropy(y_true, y_pred, from_logits=True)
+```
 #### 自定义指标
 ```python
 '''继承keras.metrics.Metric类
