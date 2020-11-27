@@ -228,3 +228,49 @@ model.fit([x_train, x_valid, y1, y2], epochs=4)
 #2/2 [==============================] - 0s 185ms/sample - loss: 1.8142 - x_acc: 1.0000 - y_acc: 0.5000
 #可以追踪总体损失但是不能追踪各个损失
 ```
+
+#### 模型的断点设置
+使用keras.callbacks.ModelCheckpoint放入model.fit的callback参数中即可，需要注意的是，如果模型中存在自定义的损失和指标，则在加载模型的时候，需要在custom_objects参数中输入自定义的损失和指标，并且目前测试下来，无法使用savedmodel格式加载自定义损失，最好使用'.h5'形式的格式
+```python
+'''加入了断点设置，以及class_weight的使用方法
+'''
+tf.random.set_seed(1)
+inputs = layers.Input(shape=(4))
+x = layers.Dense(2, activation='sigmoid',name='x')(inputs)
+model = keras.Model(inputs, x)
+
+x_train = np.random.randint(4, size = [10,1])
+enc.fit(np.arange(4).reshape(-1,1))
+x_train = enc.transform(x_train).toarray()
+
+y1 = np.random.randint(2, size = [10,1])
+enc.fit(np.arange(2).reshape(-1,1))
+y1 = enc.transform(y1).toarray()
+
+model.compile(optimizer=keras.optimizers.Adam(1e-3),
+             loss=[
+                 myloss
+             ],
+             metrics=['acc']
+                )
+
+class_weight = {
+    0: 1,
+    1: 4,
+}
+callbacks = [
+    keras.callbacks.ModelCheckpoint(
+        # Path where to save the model
+        # The two parameters below mean that we will overwrite
+        # the current checkpoint if and only if
+        # the `val_loss` score has improved.
+        # The saved model name will include the current epoch.
+        filepath="mymodel.h5",
+        save_best_only=True,  # Only save a model if `val_loss` has improved.
+        monitor="val_loss",
+        verbose=1,
+    )
+]
+model.fit(x_train, y1, class_weight = class_weight, validation_split = 0.1,epochs=10, callbacks=callbacks)
+model = keras.models.load_model('mymodel.h5', custom_objects={'myloss': myloss})
+```
