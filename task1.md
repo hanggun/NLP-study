@@ -230,7 +230,7 @@ model.fit([x_train, x_valid, y1, y2], epochs=4)
 ```
 
 #### 模型的断点设置
-使用keras.callbacks.ModelCheckpoint放入model.fit的callback参数中即可，需要注意的是，如果模型中存在自定义的损失和指标，则在加载模型的时候，需要在custom_objects参数中输入自定义的损失和指标，并且目前测试下来，无法使用savedmodel格式加载自定义损失，最好使用'.h5'形式的格式
+使用keras.callbacks.ModelCheckpoint放入model.fit的callback参数中即可，需要注意的是，如果模型中存在自定义的损失和指标，则在加载模型的时候，需要在custom_objects参数中输入自定义的损失和指标，并且目前测试下来，无法使用savedmodel格式加载自定义损失，最好使用'.h5'形式的格式。加入了对样本的各个类别进行了加权，权重直接计算在损失当中，无法对多输入进行加权，因此在这里只使用了单输入的情况
 ```python
 '''加入了断点设置，以及class_weight的使用方法
 '''
