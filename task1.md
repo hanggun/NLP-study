@@ -287,3 +287,19 @@ callbacks = [
 model.fit(x_train, y1, class_weight = class_weight, validation_split = 0.1,epochs=10, callbacks=callbacks)
 model = keras.models.load_model('mymodel.h5', custom_objects={'myloss': myloss})
 ```
+#### 使用tensorboard观察
+tensorboard首先需要添加keras.callbacks.Tensorboard回调函数，在添加路径的时候，需要将回调函数文件路径加入到系统路径，具体可以在代码中发现，在写完了tensorboard日志之后，我们可以在命令行输入`tensorboard --logdir log_path`运行，最后在http://localhost:6006 中进行查看
+```python
+logdir = os.path.join("tensorboard_log")
+if not os.path.exists(logdir):
+    os.mkdir(logdir)
+
+tensorboard = keras.callbacks.TensorBoard(
+    log_dir=logdir,
+    histogram_freq=0,  # How often to log histogram visualizations
+    embeddings_freq=0,  # How often to log embedding visualizations
+    update_freq="epoch",
+)
+history=model.fit(train_x,train_y,epochs=cfg.num_epochs,batch_size=cfg.batch_size,
+                  verbose=1, validation_split=0.2, callbacks=[tensorboard])
+```
